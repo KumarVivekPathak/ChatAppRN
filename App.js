@@ -1,20 +1,15 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { View, Text } from "react-native";
+import AppStack from "./Navigation/AppStack";
+// import { initializeApp } from "@react-native-firebase/app";
+import { useEffect } from "react";
+import { getFirestore } from "firebase/firestore";
+import { app } from "./firebaseconfig";
 
-export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
-}
+const App = () => {
+  useEffect(() => {
+    getFirestore(app);
+  }, []);
+  return <AppStack />;
+};
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+export default App;
