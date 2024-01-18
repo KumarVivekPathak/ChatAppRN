@@ -22,7 +22,9 @@ const SignUp = ({ navigation }) => {
       mobileNo: mobileNo,
       password: password,
     })
-      .then((res) => console.log("User is created: :) ", res))
+      .then((res) => {
+        Alert.alert("User is created: :) "), navigation.navigate("LoginPage");
+      })
       .catch((error) => console.log("Error", error));
   };
 
