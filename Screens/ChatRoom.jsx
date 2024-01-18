@@ -12,6 +12,7 @@ import {
   onSnapshot,
   orderBy,
   query,
+  serverTimestamp,
 } from "firebase/firestore";
 
 const ChatRoom = ({ navigation }) => {
@@ -21,60 +22,69 @@ const ChatRoom = ({ navigation }) => {
   const route = useRoute();
 
   useEffect(() => {
-    if (route.params) {
-      // Start listening to messages in this chat
-      const db = getFirestore();
-      const chatRef = collection(
-        db,
-        "chats",
-        route.params.id + route.params.data.id,
-        "messages"
-      );
-      const q = query(chatRef, orderBy("createdAt", "desc"));
+    // Start listening to messages in this chat
+    console.log("hscjkdhvd", route.params);
+    const chatRef = collection(
+      db,
+      "chats",
+      "" + route.params.id + route.params.data.userId,
+      "messages"
+    );
+    console.log(
+      "chat ref isss ",
+      chatRef,
+      route.params.id + route.params.data.userId
+    );
+    const q = query(chatRef, orderBy("createdAt", "desc"));
 
-      const subscriber = onSnapshot(q, (querySnapshot) => {
-        const allMessages = querySnapshot.docs.map((item) => {
-          return { ...item.data, createdAt: Date.parse(new Date()) };
-        });
-        setMessages(allMessages);
+    const subscriber = onSnapshot(chatRef, (querySnapshot) => {
+      console.log("quesry snapshot   ", querySnapshot);
+      const allMessages = querySnapshot.docs.map((item) => {
+        console.log("item id :: ", item.data());
+        return { ...item.data(), createdAt: Date.parse(new Date()) };
       });
+      console.log("messesfe", allMessages);
+      setMessages(allMessages);
+    });
 
-      return () => {
-        subscriber();
-      };
-    }
+    return () => {
+      subscriber();
+    };
   }, [route.params]);
 
-  const onSend = useCallback((messages = []) => {
-    const msg = messages[0];
-    const myMsg = {
-      ...msg,
-      sendBy: route.params.id,
-      sendTo: route.params.data.id,
-      createdAt: Date.parse(msg.createdAt),
-    };
-    setMessages((previousMessages) =>
-      GiftedChat.append(previousMessages, messages)
-    );
-    addDoc(
-      collection(
-        db,
-        "chats",
-        route.params.id + route.params.data.id,
-        "messages"
-      ),
-      { myMsg }
-    );
-    addDoc(
-      collection(
-        db,
-        "chats",
-        route.params.data.id + route.params.id,
-        "messages"
-      ),
-      { myMsg }
-    );
-  }, []);
+  const onSend = useCallback(
+    async (messages = []) => {
+      const msg = messages[0];
+      const myMsg = {
+        ...msg,
+        sendBy: route.params.id,
+        sendTo: route.params.data.id,
+        createdAt: Date.parse(msg.createdAt),
+      };
+      setMessages((previousMessages) =>
+        GiftedChat.append(previousMessages, messages)
+      );
+      addDoc(
+        collection(
+          db,
+          "chats",
+          "" + route.params.id + route.params.data.userId,
+          "messages"
+        ),
+        { myMsg }
+      );
+      addDoc(
+        collection(
+          db,
+          "chats",
+          "" + route.params.data.userId + route.params.id,
+          "messages"
+        ),
+        { myMsg }
+      );
+    },
+    [route.params, db]
+  );
 
   const Header = () => {
     return (
