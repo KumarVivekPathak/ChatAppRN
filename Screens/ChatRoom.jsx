@@ -210,6 +210,7 @@ const ChatRoom = ({ navigation }) => {
         user={{
           _id: route.params.id,
         }}
+        isTyping={true}
       />
     </SafeAreaView>
   );
